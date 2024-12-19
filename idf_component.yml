@@ -1,0 +1,8 @@
+name: "esp32_menu_bar"
+license: "MIT"
+version: "1.0.0"
+repository: https://github.com/japersik/esp32_menu_bar
+description: "A component to create a custom menu bar."
+dependencies:
+  idf:
+    version: ">=5.0.0"
