@@ -5,41 +5,16 @@
 #include <stddef.h>
 #include <stdint.h>
 
-typedef struct MenuItem MenuItem;
+#include "items.h"
 
-typedef enum {
-  MENU_TYPE_SUBMENU,
-  MENU_TYPE_INT,
-  MENU_TYPE_BOOL,
-  MENU_TYPE_ACTION
-} MenuItemType;
+typedef struct MenuBar {
+  MenuItem *main_item;
+  MenuItem *menu_stack[100];
+  size_t stack_position;
+} MenuBar;
 
-typedef struct MenuItemIntValue {
-  int *value;
-  int minValue;
-  int maxValue;
-  bool overflowWrap;
-} MenuItemIntValue;
-
-typedef struct MenuItemBoolValue {
-  bool *value;
-} MenuItemBoolValue;
-
-typedef struct MenuItemMenuList {
-  size_t position;
-  size_t size;
-  MenuItem *array;
-} MenuItemMenuList;
-
-struct MenuItem {
-  const char *title;
-  MenuItemType type;
-  union {
-    MenuItemMenuList submenu;
-    MenuItemBoolValue boolValue;
-    MenuItemIntValue intValue;
-    void *(*action)(void *);
-  } value;
-};
-
-#endif // !_JAPERSIK_ESP32_MENU_BAR_MENU_BAR_H
+void menu_bar_select(MenuBar *);
+void menu_bar_back(MenuBar *);
+void menu_bar_adjust_value(MenuBar *, int delta);
+void displayMenu(MenuBar *control);
+#endif	// !_JAPERSIK_ESP32_MENU_BAR_MENU_BAR_H
