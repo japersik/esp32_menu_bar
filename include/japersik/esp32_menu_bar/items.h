@@ -27,7 +27,7 @@ typedef struct MenuValueSubmenu {
 typedef struct MenuValueAction {
   void *(*action)(void *user_ctx);
   void *action_ctx;
-  bool with_approve;
+  bool selected;
 } MenuValueAction;
 
 typedef enum { MENU_TYPE_SUBMENU, MENU_TYPE_INT, MENU_TYPE_BOOL, MENU_TYPE_ACTION } MenuValueType;
@@ -43,6 +43,7 @@ struct MenuItem {
   const char *title;
   MenuValueType type;
   MenuValue value;
+  bool inactive;
 };
 
 #endif	// !_JAPERSIK_ESP32_MENU_BAR_ITEMS_H

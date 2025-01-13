@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -15,7 +16,9 @@
 #include "portmacro.h"
 #include "string.h"
 
-int brightness = 50;  // Пример настройки
+int led_delay_on = 50;	 // Пример настройки
+int led_delay_off = 50;	 // Пример настройки
+
 bool wifiEnabled = true;
 
 void pressedCallback(ButtonEvent enevt, void* param) {
@@ -35,18 +38,22 @@ void encoderCallback(EncoderCallbackEvent event, void* param) {
   displayMenu(menuControl);
 }
 
+void* print_text(void* text) {
+  printf("printing '%s'\n", (char*)(text));
+  return 0;
+}
+
 void app_main(void) {
   int t = 0;
   MenuItem submenuElems[] = {
-      {"Info", MENU_TYPE_INT, .value.int_value = {&t, -10, 10, false}},
+      {"Info", MENU_TYPE_INT, .value.int_value = {&t, -10, 10, false}, true},
       {"Test", MENU_TYPE_INT, .value.int_value = {&t, -10, 10, false}},
-      {"Do action", MENU_TYPE_INT, .value.int_value = {&t, -15, 10, false}},
-      {"Do action 2", MENU_TYPE_INT, .value.int_value = {&t, -10, 10, false}},
+      {"Do action", MENU_TYPE_ACTION, .value.action_value = {print_text, "action1", false}, true},
+      {"Do action 2", MENU_TYPE_ACTION, .value.action_value = {print_text, "action1", false}},
   };
-  int test = 1;
   MenuItem mainMenuElems[] = {
-      {"Int value (0,100)", MENU_TYPE_INT, .value.int_value = {&brightness, 0, 100, false}},
-      {"Int value (-10,10)", MENU_TYPE_INT, .value.int_value = {&test, -10, 10, false}},
+      {"led on (0,100)", MENU_TYPE_INT, .value.int_value = {&led_delay_on, 0, 100, false}},
+      {"led off (0,100)", MENU_TYPE_INT, .value.int_value = {&led_delay_off, 0, 100, false}},
       {"Bool value", MENU_TYPE_BOOL, .value.bool_value = {&wifiEnabled}},
       {"Submenu", MENU_TYPE_SUBMENU, .value.submenu = {.position = 0, .size = 4, submenuElems}},
   };
@@ -57,7 +64,7 @@ void app_main(void) {
       .value.submenu = {.size = 4, .position = 0, .array = mainMenuElems},
   };
 
-  MenuBar menuControl = {&menu, {}, 0};
+  MenuBar menuControl = {{&menu}, 0};
 
   gpio_install_isr_service(0);
 
@@ -69,7 +76,11 @@ void app_main(void) {
   pcnt_encoder_set_callback(encoder, encoderCallback, &menuControl);
 
   button_observer_add_button(obs, b, 21);
+  gpio_set_direction(GPIO_NUM_18, GPIO_MODE_OUTPUT);
   for (;;) {
-    vTaskDelay(300 / portTICK_PERIOD_MS);
+    gpio_set_level(GPIO_NUM_18, 1);
+    vTaskDelay(led_delay_on * 10 / portTICK_PERIOD_MS);
+    gpio_set_level(GPIO_NUM_18, 0);
+    vTaskDelay(led_delay_off * 10 / portTICK_PERIOD_MS);
   }
 }
